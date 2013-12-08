@@ -1,3 +1,145 @@
+0.9.5 Release
+=============
+
+Aleksej Kabanov:
+      Updated Russian translation
+
+Alexandre Franke:
+      Update French translation
+
+Andika Triwidada:
+      Updated Indonesian translation
+
+Anish A:
+      Updated Malayalam Localization
+
+Ask H. Larsen:
+      Updated Danish translation
+
+Aurimas Černius:
+      Updated Lithuanian translation
+
+Balázs Úr:
+      Updated Hungarian translation
+
+Carles Ferrando:
+
+Chao-Hsiung Liao:
+      Updated Traditional Chinese translation(Hong Kong and Taiwan)
+
+Christian Kirbach:
+      Updated German translation
+
+Daniel Mustieles:
+      Fixed syntax in .desktop file
+      Updated Spanish translation
+
+Dimitris Spingos:
+      Updated Greek translation
+
+Dodji Seketeli:
+      680376 - Local variables in nested scopes don't get refreshed automatically
+      697992 - fail to restart a program wrapped in libtool shell script
+      687609 - nemiver should install a highcontrast app icon
+      561239 - UI to select and copy text from source editor
+      700248 - Support breakpoints with multiple locations
+      701480 - Correctly flag a breakpoint pending state
+      698371 - Run command is available even after detaching
+      Fix "restart loosing inferior argument" bug
+      Don't 'run' the inferior on startup when it has no 'main'
+      Continue execution upon (re)start with breakpoints set
+      Handle deleting all sub-breakpoints at once
+      Support modified-breakpoint async output from GDB
+      Allow disassembling from address 0
+      Fix continue action label
+      Fix menu typo
+      Remove useless typedef
+      Fix -Wunused-local-typedefs triggered by GCC 4.8
+      Use AM_CPPFLAGS instead of INCLUDE
+      Misc fixes for autoconf 2.69 and automake 1.13.1
+      Don't use INCLUDE in Makefile.am anymore
+
+Duarte Loreto:
+      Updated Portuguese translation and converted to New Spelling (Novo AO)
+
+Enrico Nicoletto:
+      Updated Brazilian Portuguese translation
+      Updated partial Brazilian Portuguese translation
+      Updated Brazilian Portuguese translation for manual
+
+Fabien Parent:
+      Remove usage of deprecated API
+
+Fran Diéguez:
+      Updated Galician translations
+
+Gheyret Kenji:
+      Updated Uyghur translation
+
+Gil Forcada :
+      [l10n] Updated Catalan translation
+
+Joan Duran:
+      [l10n] Updated Catalan translation
+
+Joe Hansen:
+      Updated Danish translation
+
+Kjartan Maraas:
+      Updated Norwegian bokmål translation
+
+Marek Černocký:
+      Updated Czech translation
+
+Mario Blättermann:
+      [l10n]Updated German translation
+
+Matej Urbančič:
+      Updated Slovenian translation
+
+Milo Casagrande:
+      [l10n] Added Italian translation.
+
+Muhammet Kara:
+      [l10n] Added Turkish translation
+
+OKANO Takayoshi:
+      l10n: Update Japanese translation
+
+Pavol Klačanský:
+      Updated slovak translation
+
+Piotr Drąg:
+      Updated Polish translation
+      Remove markup from translatable string
+
+Rafael Ferreira:
+      Updated Brazilian Portuguese Translation
+
+Richard Stanislavský:
+      Updated slovak translation
+
+Rūdolfs Mazurs:
+      Updated Latvian translation
+
+Seong-ho Cho:
+      Updated Korean translation
+
+Timo Jyrinki:
+      Finnish translation update
+
+Victor Ibragimov:
+      [l10n] Added Tadjik translation
+
+Wylmer Wang:
+      update Simplified Chinese (zh_CN) translation
+
+Yuri Myasoedov:
+      Updated Russian translation
+
+Мирослав Николић:
+      Updated Serbian translation
+
 0.9.4 Release
 =============
 
