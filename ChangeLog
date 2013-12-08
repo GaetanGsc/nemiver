@@ -1,6 +1,1103 @@
+2013-12-08  Dodji Seketeli <dodji@seketeli.org>
+
+	Update NEWS file for 0.9.5
+	* NEWS: Update for 0.9.5
+
+2013-12-08  Dodji Seketeli <dodji@seketeli.org>
+
+	Update Copyright in INSTALL file.
+	* NEWS: Update copyright year mention.
+
+2013-10-27  Dodji Seketeli <dodji@seketeli.org>
+
+	Support modified-breakpoint async output from GDB
+	* src/dbgengine/nmv-dbg-common.h
+	(Output::OutOfBandRecord::{m_has_modified_breakpoint,
+	m_modified_breakpoint): New members.
+	(Output::OutOfBandRecord::{has_modified_breakpoint,
+	modified_breakpoint}): New accessors.
+	(Output::OutOfBandRecord::clear): Clear m_has_modified_breakpoint
+	and m_modified_breakpoint.
+	(Output::OutOfBandRecords): New typedef.
+	* src/dbgengine/nmv-gdbmi-parser.h
+	(GDBMIParser::parse_breakpoint_modified_async_output): New
+	declaration.
+	* src/dbgengine/nmv-gdbmi-parser.cc (CHECK_END): Re-use
+	END_OF_INPUT for this macro.
+	(PARSING_ERROR_IF_END): New macro.
+	(PREFIX_*, NDELETED, NUMCHILD, CHANGELIST, PATH_EXPR): Make these
+	global variables static.
+	(PREFIX_BREAKPOINT_MODIFIED_ASYNC_OUTPUT): New static global
+	variable.
+	(GDBMIParser::parse_breakpoint_modified_async_output): New function.
+	(GDBMIParser::parse_out_of_band_record):  New the new function
+	above.
+	* src/dbgengine/nmv-i-debugger.h (OverloadsChoiceEntry): New
+	typedef.
+	* src/dbgengine/nmv-gdb-engine.cc
+	(OnBreakpointHandler::{has_modified_breakpoint,
+	notify_breakpoint_deleted_signal,
+	append_bp_to_cache_and_notify_bp_set): New helper functions.
+	(OnBreakpointHandler::can_handle): If the output contains an
+	out-of-band-record with the modified breakpoint async output then
+	the OnBreakpointHandler can handle this output.
+	(OnBreakpointHandler::do_handle): New the above. Detect if a
+	breakpoint was modified.  If so, delete its previous version from
+	the cache, notify listeners about the deletion, add the new
+	version to the cache and notify listeners about the addition.
+	Also, rename the has_breaks boolean into has_breaks_set.  Remove
+	some trailing white space.  Use the new
+	notify_breakpoint_deleted_signal to delete some old code, making
+	this a bit more maintainable.
+	* tests/test-gdbmi.cc (gv_breakpoint_modified_async_output0): New
+	global with a modified-breakpoint async output from GDB.
+	(test_breakpoint): Add testing about parsing the
+	modified-breakpoint async output from GDB above.
+
+2013-10-26  Dodji Seketeli <dodji@seketeli.org>
+
+	Handle deleting all sub-breakpoints at once
+	* src/dbgengine/nmv-i-debugger.h
+	(IDebugger::Breakpoint::parent_id): New inline method.
+	* src/dbgengine/nmv-gdb-engine.cc (GDBEngine::delete_breakpoint):
+	When passed the id of a sub-breakpoint, delete its parent
+	breakpoint.
+	* src/persp/dbgperspective/nmv-breakpoints-view.cc
+	(BreakpointsView::Priv::on_debugger_breakpoint_deleted_signal):
+	Delete all sub-breakpoint which parent_id equals the id of the
+	deleted breakpoint.
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::on_debugger_breakpoint_deleted_signal): Likewise.
+	(DBGPerspective::record_and_save_session): Avoid recording the
+	same breakpoint twice b/c we'd recorded to sub-breakpoint of the
+	same parent breakpoint.
+	(DBGPerspective::execute_program): Do not save/re-set a breakpoint
+	twice b/c we'd have saved two sub-breakpoints with the same parent
+	id.
+	(DBGPerspective::delete_breakpoint): Walk all the breakpoints and
+	delete all breakpoints which file location equals the ones of the
+	breakpoint to delete.
+
+2013-10-25  Dodji Seketeli <dodji@seketeli.org>
+
+	Rename IDebugger::Breakpoint::number to IDebugger::Breakpoint::id
+	* src/dbgengine/nmv-i-debugger.h (IDebugger::Breakpoint::id):
+	Rename IDebugger::Breakpoint::number into this.  What we are
+	getting is a string id, not a an integer number (the id can be
+	"2.3", for instance).
+	(IDebugger::Breakpoint::number): New method that always return the
+	sub breakpoint number.
+	* src/dbgengine/nmv-gdb-engine.cc
+	(OnBreakpointHandler::do_handle)
+	(GDBEngine::append_breakpoint_to_cache, ): Update for the
+	Breakpoint::id rename.
+	* src/dbgengine/nmv-gdbmi-parser.cc
+	(GDBMIParser::parse_result_record): Likewise.
+	* src/persp/dbgperspective/nmv-breakpoints-view.cc
+	(BreakpointsView::Priv::{breakpoint_list_has_id,
+	find_breakpoint_in_model, update_breakpoint,
+	on_debugger_breakpoints_list_signal}): Likewise.
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::{on_breakpoint_delete_action,
+	on_debugger_breakpoints_list_signal,
+	do_jump_and_break_to_location, re_initialize_set_breakpoints,
+	append_breakpoint_to_cache, delete_breakpoint, toggle_countpoint,
+	toggle_breakpoint_enabled}): Likewise.
+	* tests/test-gdbmi.cc (test_breakpoint_table, test_breakpoint):
+	Likewise.
+
+2013-10-26  Dodji Seketeli <dodji@seketeli.org>
+
+	Style, white space & other mechanical cleanups
+	* src/dbgengine/nmv-dbg-common.h (class OutOfBandRecord): Fix
+	comments.
+	(Output::ResultRecord::has_var_changes): Remove trailing white
+	space.
+	* src/dbgengine/nmv-gdb-engine.h: Flag the file as being a c++ one
+	for emacs.
+	* src/dbgengine/nmv-gdb-engine.cc
+	(OnBreakpointHandler::{has_overloads_prompt,
+	extract_overloads_choice_prompt_values, has_breakpoints_set}):
+	Change member function declaration style.
+	(GDBEngine::disable_breakpoint): Remove unused variable.
+	(GDBEngine::append_breakpoint_to_cache): Wrap too long line.
+	Remove useless white space.
+	(GDBEngine::append_breakpoint_to_cache): Likewise.
+	* src/dbgengine/nmv-gdbmi-parser.cc (LOG_PARSING_ERROR): Remove
+	this unused macro.  Rename LOG_PARSING_ERROR2 into
+	LOG_PARSING_ERROR.
+	(LOG_PARSING_ERROR_MSG): Remove this unused macro.  Rename
+	LOG_PARSING_ERROR_MSG2 into LOG_PARSING_ERROR_MSG.
+	(CHECK_END): Remove this unused macro.  Rename CHECK_END2 into
+	this.
+	(CHECK_END_BREAK): Remove this unused macro.
+	(SKIP_WS): Remove.  Renamed SKIP_WS2 into this.
+	(SKIP_BLANK): Remove.  Renamed SKIP_BLANK2 into this.
+	(lots of functions): Update for the renaming above.
+	(GDBMIParser::{parse_breakpoint, parse_threads_list): Remove
+	trailing white space.
+	* src/persp/dbgperspective/nmv-breakpoints-view.cc
+	(BreakpointsView::Priv::should_process_now): Remove useless white
+	space.
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::execute_session, DBGPerspective::get_breakpoint):
+	White space fixes.
+
+2013-10-25  Dodji Seketeli <dodji@seketeli.org>
+
+	Re-allow the "Run" menuitem after target exited
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::init_actions): Move the RunMenuItemAction into
+	the inferior_loaded_action_group.
+	(DBGPerspective::update_action_group_sensitivity): Do not disallow
+	the sensitivity of the inferior_loaded_action_group after the
+	target exited.
+
+2013-10-13  Carles Ferrando <carles.ferrando@gmail.com>
+
+	[l10n] Updated Catalan (Valencian) translation
+
+2013-10-13  Dodji Seketeli <dodji@seketeli.org>
+
+	698371 Run command is available even after detaching
+	* src/dbgengine/nmv-gdb-engine.h (GDBengine::reset_command_queue):
+	New entry point.
+	* src/dbgengine/nmv-gdb-engine.cc
+	(GDBEngine::reset_command_queue): Implement this new entry point.
+	(GDBEngine::load_program): Use this new reset_command_queue entry
+	point.
+	(GDBEngine::detach_from_target): Normally, the inferior must be
+	stopped before accepting commands; soo to accept the "detach"
+	command, the target must be stopped too.  Thus, if the target is
+	not stopped, let's stop it first by sending it a SIGINT signal,
+	end schedule the detach command to be sent to GDB right after
+	that.
+	(OnDetachHandler::do_handle): Reset command queue upon detach.
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::init_actions): Remove the
+	s_target_not_started_action_entries.  Move the RunMenuItemAction
+	into the s_debugger_ready_action_entries object. Remove
+	m_priv->target_not_started_action_group.
+	(DBGPerspective::on_engine_died_signal)
+	(DBGPerspective::update_action_group_sensitivity): Adjust for
+	removing the target_not_started_action_group action group.
+	(DBGPerspective::on_debugger_detached_from_target_signal): Closed
+	opened file only upon detach from target.  Adjust for removing the
+	target_not_started_action_group action group.
+
+2013-10-13  Dodji Seketeli <dodji@seketeli.org>
+
+	White space and style fixes
+	* src/dbgengine/nmv-gdb-engine.cc (GDBEngine::Priv::list_frame):
+	Remove useless white spaces.
+	(OnDetachHandler::do_handle): Do not name the unused "a_in" parm.
+	Thus remove the dummy if().
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::on_debugger_inferior_re_run_signal): Remove
+	useless white spaces.
+	(DBGPerspective::on_debugger_detached_from_target_signal): Add a
+	';' after  NEMIVER_TRY.
+
+2013-10-09  Fabien Parent <parent.f@gmail.com>
+
+	Remove usage of deprecated API
+	* src/uicommon/nmv-terminal.cc (Terminal::Priv::init_body):
+	Replace the deprecated API (vte_terminal_get_adjustment) by its
+	recommanded replacement (gtk_scrollable_get_vadjustment).
+
+2013-10-09  Dodji Seketeli <dodji@seketeli.org>
+
+	Fix "restart loosing inferior argument" bug
+	* src/dbgengine/nmv-gdb-engine.cc (GDBEngine::load_program): Do
+	not reset the command queue *after* launching a fresh GDB.  That
+	might drop many useful commands sent to the new GDB instance and
+	thus make us loose important information such as the arguments to
+	the inferior.  Rather, reset the command queue before launching a
+	fresh new GDB.
+
+2013-10-08  Dodji Seketeli <dodji@seketeli.org>
+
+	Fix menu typo
+	* src/persp/dbgperspective/menus/menus.xml: Fix CopyMenutItem ->
+	CopyMenuItem typo.
+
+2013-09-23  Duarte Loreto <happyguy_pt@hotmail.com>
+
+	Updated Portuguese translation
+
+2013-09-18  Timo Jyrinki <timo@debian.org>
+
+	Finnish translation update
+
+2013-09-17 22:25:29 -0300  Enrico Nicoletto <liverig@gmail.com>
+
+	Updated Brazilian Portuguese translation for manual
+
+2013-09-17  Ask H. Larsen <asklarsen@gmail.com>
+
+	Updated Danish translation
+
+2013-09-15  Pavol Klačanský <pavol@klacansky.com>
+
+	Updated slovak translation
+
+2013-09-15  Seong-ho Cho <darkcircle.0426@gmail.com>
+
+	Updated Korean translation
+
+2013-09-12  Rūdolfs Mazurs <rudolfsm@src.gnome.org>
+
+	Updated Latvian translation
+
+2013-09-09  Andika Triwidada <andika@gmail.com>
+
+	Updated Indonesian translation
+
+2013-09-07  Christian Kirbach <christian.kirbach@gmail.com>
+
+	Updated German translation
+
+2013-09-07  Yuri Myasoedov <omerta13@yandex.ru>
+
+	Updated Russian translation
+
+2013-09-06  Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>
+
+	Updated Traditional Chinese translation(Hong Kong and Taiwan)
+
+2013-09-06  Мирослав Николић <miroslavnikolic@rocketmail.com>
+
+	Updated Serbian translation
+
+2013-09-04  Marek Černocký <marek@manet.cz>
+
+	Updated Czech translation
+
+2013-09-03  Balázs Úr <urbalazs@src.gnome.org>
+
+	Updated Hungarian translation
+
+2013-09-03  Alexandre Franke <alexandre.franke@gmail.com>
+
+	Update French translation
+
+2013-09-03  Milo Casagrande <milo@ubuntu.com>
+
+	[l10n] Updated Italian translation.
+
+2013-09-02  Daniel Mustieles <daniel.mustieles@gmail.com>
+
+	Updated Spanish translation
+
+2013-09-01  Matej Urbančič <mateju@svn.gnome.org>
+
+	Updated Slovenian translation
+
+2013-09-01  Aurimas Černius <aurisc4@gmail.com>
+
+	Updated Lithuanian translation
+
+2013-08-31 18:15:22 -0300  Enrico Nicoletto <liverig@gmail.com>
+
+	Updated partial Brazilian Portuguese translation
+
+2013-08-31  Gil Forcada <gforcada@gnome.org>
+
+	[l10n] Update Catalan translation
+
+2013-08-31  Piotr Drąg <piotrdrag@gmail.com>
+
+	Updated Polish translation
+
+2013-08-31  Dimitris Spingos <dmtrs32@gmail.com>
+
+	Updated Greek translation
+
+2013-08-31  Fran Diéguez <fran.dieguez@mabishu.com>
+
+	Updated Galician translations
+
+2013-08-31  Dodji Seketeli <dodji@seketeli.org>
+
+	Fix continue action label
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::init_actions):  The continue action cannot be
+	used to restart the inferior because it's not active when the
+	target is not ready.
+
+2013-08-31  Dodji Seketeli <dodji@seketeli.org>
+
+	Fix some comments
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::on_debugger_breakpoints_set_signal): Fix
+	comments.
+
+2013-08-31  Dodji Seketeli <dodji@seketeli.org>
+
+	Continue execution upon (re)start with breakpoints set
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::execute_program): When we are (re)starting the
+	inferior with breakpoints set, let's assume the user wants to
+	continue the execution of the inferior upon its (re)loading; so
+	let's do her that service.
+
+2013-08-31  Dodji Seketeli <dodji@seketeli.org>
+
+	Add more logging in the debugger perspective
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::on_debugger_bp_automatically_set_on_main): Add
+	function enter/exit logs.
+	(DBGPerspective::execute_program): Add more logging here.
+
+2013-08-23  Kjartan Maraas <kmaraas@gnome.org>
+
+	Updated Norwegian bokmål translation
+
+2013-08-22  Alexandre Franke <alexandre.franke@gmail.com>
+
+	Update French translation
+
+2013-08-18  Dimitris Spingos <dmtrs32@gmail.com>
+
+	Updated Greek translation
+
+2013-08-06  Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>
+
+	Updated Traditional Chinese translation(Hong Kong and Taiwan)
+
+2013-07-13  Marek Černocký <marek@manet.cz>
+
+	Updated Czech translation
+
+2013-07-02  Andika Triwidada <andika@gmail.com>
+
+	Updated Indonesian translation
+
+2013-06-16  Balázs Úr <urbalazs@src.gnome.org>
+
+	Updated Hungarian translation
+
+2013-06-09  Christian Kirbach <Christian.Kirbach@googlemail.com>
+
+	Updated German translation
+
+2013-06-02  Dodji Seketeli <dodji@seketeli.org>
+
+	701480 Correctly flag a breakpoint pending state
+	* src/dbgengine/nmv-i-debugger.h (Breakpoint::{m_is_pending,
+	is_pending): New data member and accessors.
+	(Breakpoint::clear): Initialize the new m_is_pending data member.
+	(Breakpoint::address): When a non empty address is set, then the
+	breakpoint implicitly becomes non-pending.
+	* src/dbgengine/nmv-gdbmi-parser.cc
+	(GDBMIParser::parse_breakpoint_with_one_loc): Flag the resulting
+	breakpoint as pending when the 'pending' property is present.
+
+2013-06-02  Dodji Seketeli <dodji@seketeli.org>
+
+	Add comments and cleanup white space
+	* src/dbgengine/nmv-gdbmi-parser.cc
+	(GDBMIParser::parse_breakpoint_with_one_loc): Cleanup white
+	spaces and add comments.
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::{get_source_editor_from_path,
+	append_breakpoint}):  Add comments.
+
+2013-06-02  Dodji Seketeli <dodji@seketeli.org>
+
+	Remove useless typedef
+	* nmv-i-debugger.h (BreakpointSlot): Remove this unused typedef.
+
+2013-06-02  Dodji Seketeli <dodji@seketeli.org>
+
+	Don't 'run' the inferior on startup when it has no 'main'
+	* src/dbgengine/nmv-i-debugger.h (IDebugger::set_breakpoint):
+	Declare a new overload that sets a breakpoint on a function by
+	name and that takes a callback slot that is invoked whenever the
+	breakpoint is set.
+	* src/dbgengine/nmv-gdb-engine.h (GDBEngine::set_breakpoint):
+	Declare ...
+	* src/dbgengine/nmv-gdb-engine.cc (GDBEngine::set_breakpoint):
+	... a new overload that sets a breakpoint on a function by name
+	and that takes a callback slot that is invoked whenever the
+	breakpoint is set.  Write the previous overload that just set a
+	breakpoint on a function by name in terms of this new one.
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::on_debugger_breakpoints_set_signal): New callback slot.
+	(DBGPerspective::execute_program): It's only if the breakpoint set
+	on main is actually set that the inferior should be run.
+
+2013-06-02  Dodji Seketeli <dodji@seketeli.org>
+
+	White space cleanups
+	* src/dbgengine/nmv-gdb-engine.cc (GDBEngine::{set_breakpoint,
+	enable_breakpoint): Delete white space lines.
+
+2013-03-13  Dodji Seketeli <dodji@seketeli.org>
+
+	Don't use INCLUDE in Makefile.am anymore
+	* src/Makefile.am: Replace use INCLUDE by AM_CPPFLAGS.
+	* src/confmgr/Makefile.am: Likewise.
+	* src/dbdimpl/sqlite/Makefile.am: Likewise.
+	* src/dbgengine/Makefile.am: Likewise.
+	* src/langs/Makefile.am: Likewise.
+	* src/persp/dbgperspective/Makefile.am: Likewise.
+	* src/uicommon/Makefile.am: Likewise.
+	* src/workbench/Makefile.am: Likewise.
+
+2013-05-27  Dodji Seketeli <dodji@seketeli.org>
+
+	700248 Support breakpoints with multiple locations
+	* src/dbgengine/nmv-i-debugger.h (Breakpoint::{m_sub_breakpoints,
+	m_parent_breakpoint}): New members.
+	(IDebugger::Breakpoint::number): Change the type of this into a string.  It
+	can now be something like "2.1", for a sub-breakpoint of
+	breakpoint "2", representing one location of the breakpoint 2 that
+	has several locations.
+	(IDebugger::Breakpoint::{sub_breakpoint_number, has_multiple_locations,
+	append_sub_breakpoint, sub_breakpoints, parent_breakpoint_number,
+	is_sub_breakpoint): New methods.
+	(IDebugger::{BreakpointsSlot, breakpoints_list_signal,
+	breakpoint_set_signal, stopped_signal, enable_breakpoint,
+	disable_breakpoint, set_breakpoint_ignore_count,
+	set_breakpoint_condition, enable_countpoint, is_countpoint,
+	get_cached_breakpoints, get_breakpoint_from_cache,
+	delete_breakpoint}): Adjust for use of type of the breakpoint
+	number.
+	* src/dbgengine/nmv-dbg-common.h
+	(Output::ResultRecord::{m_breakpoint, breakpoints}): Adjust
+	breakpoint map type.
+	* src/dbgengine/nmv-debugger-utils.cc (null_breakpoints_slot): Likewise.
+	* src/dbgengine/nmv-debugger-utils.h (null_breakpoints_slot): Likewise.
+	* src/dbgengine/nmv-gdb-engine.cc
+	(GDBEngine::Priv::{cached_breakpoints, breakpoints_list_signal,
+	breakpoints_set_signal, breakpoint_deleted_signal, stopped_signal,
+	on_stopped_signal}, OnBreakpointHandler::do_handle). Likewise.
+	Also adjust usage of breakpoint number type.
+	(OnStoppedHandler::do_handle): Adjust usage of breakpoint number
+	type.
+	(OnCommandDoneHandler::{flag_breakpoint_as_countpoint,
+	do_handle}): Likewise.
+	(GDBEngine::{breakpoint_deleted_signal, breakpoints_list_signal,
+	stopped_signal, on_stopped_signal, enable_breakpoint,
+	disable_breakpoint, set_breakpoint_ignore_count,
+	set_breakpoint_condition, enable_countpoint, is_countpoint,
+	get_cached_breakpoints, get_breakpoint_from_cache,
+	append_breakpoint_to_cache, delete_breakpoint}): Likewise.
+	* src/dbgengine/nmv-gdb-engine.h
+	(GDGEngine::{breakpoints_list_signal, breakpoints_set_signal,
+	breakpoint_deleted_signal, stopped_signal, on_stopped_signal,
+	append_breakpoint_to_cache, enable_breakpoint, disable_breakpoint,
+	set_breakpoint_ignore_count, set_breakpoint_condition,
+	enable_countpoint, is_countpoint, get_cached_breakpoints,
+	get_breakpoint_from_cache, delete_breakpoint}):  Likewise.
+	* src/dbgengine/nmv-gdbmi-parser.cc
+	(GDBMIParser::Priv::skip_blank): New.
+	(SKIP_BLANK2): Make this use the new
+	GDBMIParser::Priv::skip_blank.
+	(GDBMIParser::parse_result_record): Adjust for the use of
+	breakpoint number.
+	(GDBMIParser::parse_breakpoint_with_one_loc): Renamed
+	GDBMIParser::parse_breakpoint into this.  Make this support either
+	parsing a sub-breakpoint or not.
+	(GDBMIParser::parse_breakpoint): Write a new version of this that
+	uses parse_breakpoint_with_one_loc to possibly parse a breakpoint
+	with several locations.
+	(GDBMIParse::parse_breakpoint_table): Adjust for use of breakpoint
+	number.
+	* src/dbgengine/nmv-gdbmi-parser.h
+	(GDBMIParser::parse_breakpoint_with_one_loc): New entry point.
+	(GDBMIParser::parse_breakpoint_table): Adjust for use of
+	breakpoint number.
+	* src/persp/dbgperspective/nmv-breakpoints-view.cc (BPColumns::id):
+	Change the type of the breakpoint id from int to string.
+	(BreakpointsView::Priv::update_or_append_breakpoint): New.
+	Actually factorized from ...
+	(BreakpointsView::Priv::set_breakpoint_condition): ... here.
+	Modify this to add/set the sub-breakpoints of a multiple
+	breakpoint.
+	(BreakpointsView::Priv::{add_breakpoints, breakpoint_list_has_id,
+	erase_breakpoint, on_debugger_breakpoints_list_signal,
+	on_debugger_stopped_signal, on_debugger_breakpoint_deleted_signal,
+	on_debugger_breakpoints_set_signal, on_breakpoint_delete_action,
+	on_breakpoint_enable_toggled, on_countpoint_toggled,
+	on_breakpoint_ignore_count_edited,
+	on_breakpoint_condition_edited})
+	(BreakpointsView::set_breakpoints): Adjust for the type of
+	breakpoint id.
+	(BreakpointsView::Priv::append_breakpoint): Make this return void
+	now.  Change it to append sub-breakpoints of a multiple-locations
+	breakpoint.  Add comments.
+	* src/persp/dbgperspective/nmv-breakpoints-view.h
+	(BreakpointsView::set_breakpoints): Adjust for the type of
+	breakpoint id.
+	* src/persp/dbgperspective/nmv-call-stack.cc
+	(CallStack::Priv::on_debugger_stopped_signal): Likewise.
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::{on_break_before_jump,
+	on_debugger_breakpoints_set_signal,
+	on_debugger_breakpoints_list_signal,
+	on_debugger_breakpoint_deleted_signal, on_debugger_stopped_signal,
+	jump_to_location, append_breakpoints, delete_breakpoint,
+	toggle_breakpoint_enabled, delete_visual_breakpoint,
+	get_frame_breakpoints_address_range, record_and_save_session,
+	execute_program, re_initialize_set_breakpoints, get_breakpoint,
+	delete_visual_breakpoints, apply_decorations_to_source,
+	apply_decorations_to_asm} DBGPerspective::Priv::{breakpoints}):
+	Likewise.
+	(DBGPerspective::append_breakpoint): Append sub-breakpoints of a
+	multiple-locations breakpoint.
+	* src/persp/dbgperspective/nmv-dbg-perspective.h
+	(DBGPerspective::{append_breakpoint, delete_breakpoint}): Adjust
+	for the type of breakpoint id.
+	* src/persp/dbgperspective/nmv-expr-monitor.cc
+	(ExprMonitor::Priv::on_stopped_signal): Likewise.
+	* src/persp/dbgperspective/nmv-local-vars-inspector.cc
+	(LocalVarsInspector::Priv::on_stopped_signal): Likewise.
+	* src/persp/dbgperspective/nmv-memory-view.cc
+	(MemoryView::Priv::on_stopped_signal): Likewise.
+	* src/persp/dbgperspective/nmv-registers-view.cc
+	(RegistersView::Priv::on_debugger_stopped): Likewise.
+	* src/persp/dbgperspective/nmv-thread-list.cc
+	(ThreadList::Priv::on_debugger_stopped_signal): Likewise.
+	* tests/test-breakpoint.cc (test_main): Set a breakpoint on the
+	overloaded Person::overload method, to test this new "breakpoint
+	with multiple locations" feature support.
+	(on_breakpoints_set_signal): Adjust for the use of breakpoint id
+	type.
+	(on_stopped_signal): Likewise.  Support stopping on
+	'Person::overload' overloaded method, and continuing from there.
+	(on_program_finished_signal): Update the number of breakpoint
+	stops expected.
+	* tests/test-core.cc (on_stopped_signal): Adjust for the use of
+	breakpoint id type.
+	* tests/test-deref.cc (on_stopped_signal): Likewise.
+	* tests/test-disassemble.cc (on_stopped_signal): Likewise.
+	* tests/test-gdbmi.cc (gv_breakpoint3): New breakpoint with
+	multiple location MI output.
+	(test_breakpoint): Test the parsing of the new gv_breakpoint3.
+	(test_breakpoint_table): Adjust for the use of breakpoint id type.
+	* tests/test-local-vars-list.cc (on_stopped_signal): Adjust for
+	the use of breakpoint id type.
+	* tests/test-pretty-print.cc (on_stopped_signal): Likewise.
+	* tests/test-threads.cc (on_stopped_signal): Likewise.
+	* tests/test-types.cc (on_stopped_signal): Likewise.
+	* tests/test-var-list.cc (on_stopped_signal): Likewise.
+	* tests/test-var-path-expr.cc (on_breakpoints_set_signal)
+	(on_stopped_signal): Likewise.
+	* tests/test-var-walker.cc (on_stopped_signal): Likewise.
+	* tests/test-variable-format.cc (on_stopped_signal): Likewise.
+	* tests/test-varobj-walker.cc (on_stopped_signal): Likewise.
+	* tests/test-vars.cc (on_stopped_signal): Likewise.
+	* tests/test-watchpoint.cc (on_breakpoints_set_signal)
+	(on_stopped_signal): Likewise.
+
+2013-05-26  Milo Casagrande <milo@ubuntu.com>
+
+	[l10n] Added Italian translation.
+
+2013-05-25  Matej Urbančič <mateju@svn.gnome.org>
+
+	Updated Slovenian translation
+
+2013-05-25  Richard Stanislavský <kenny.vv@gmail.com>
+
+	Updated slovak translation
+
+2013-05-24  Muhammet Kara <muhammetk@gmail.com>
+
+	[l10n] Added Turkish translation
+
+2013-05-20  Dodji Seketeli <dodji@seketeli.org>
+
+	Misc fixes for autoconf 2.69 and automake 1.13.1
+	* configure.ac: Replace AM_GNU_GETTEXT with AM_GLIB_GNU_GETTEXT.
+	* src/Makefile.am: Replace INCLUDES with AM_CPPFLAGS.
+	* src/common/Makefile.am: Likewise.
+	* src/confmgr/Makefile.am: Likewise.
+	* src/dbdimpl/sqlite/Makefile.am: Likewise.
+	* src/dbgengine/Makefile.am: Likewise.
+	* src/langs/Makefile.am: Likewise.
+	* src/persp/dbgperspective/Makefile.am: Likewise.
+	* src/uicommon/Makefile.am: Likewise.
+	* src/workbench/Makefile.am: Likewise.
+
+2013-05-20  Gil Forcada <gforcada@gnome.org>
+
+	[l10n] Update Catalan translation
+
+2013-05-19  Aurimas Černius <aurisc4@gmail.com>
+
+	Updated Lithuanian translation
+
+2013-05-16  Fran Diéguez <fran.dieguez@mabishu.com>
+
+	Updated Galician translations
+
+2013-05-15  Marek Černocký <marek@manet.cz>
+
+	Updated Czech translation
+
+2013-05-14  Daniel Mustieles <daniel.mustieles@gmail.com>
+
+	Updated Spanish translation
+
+2013-05-13 21:12:28 -0300  Rafael Ferreira <rafael.f.f1@gmail.com>
+
+	Updated Brazilian Portuguese translation
+
+2013-05-13  Yuri Myasoedov <omerta13@yandex.ru>
+
+	Updated Russian translation
+
+2013-05-13  Piotr Drąg <piotrdrag@gmail.com>
+
+	Updated Polish translation
+
+2013-05-13  Dodji Seketeli <dodji@seketeli.org>
+
+	561239 UI to select and copy text from source editor
+	* src/persp/dbgperspective/menus/menus.xml:  Add a copy text menu
+	item.
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::{on_copy_action, on_popup_menu,
+	update_copy_action_sensitivity, setup_and_popup_contextual_menu}):
+	New methods.
+	(DBGPerspective::on_run_action): Call the new
+	setup_and_popup_contextual_menu to popup the context menu.
+	(DBGPerspective::on_insertion_changed_signal): Update the
+	sensitivity of the copy action whenever the user clicks in the
+	source view.
+	(s_file_opened_action_entries): Add an entry for a "copy text"
+	action.
+	(DBGPerspective::append_source_editor ):  Do not display the
+	default context menu that comes with instances of Gtk::TextView.
+	Rather, display our own.  Make sure the copy action sensitivity is
+	properly set even before the user ever clicks in the source view.
+	(DBGPerspective::get_contextual_menu): Add a "copy" text to the
+	contextual menu.
+	(DBGPerspective::popup_source_view_contextual_menu): Remove this
+	as its core functionality it provided by
+	SourceView::setup_and_popup_contextual_menu now.
+	* src/uicommon/nmv-source-editor.h
+	(SourceEditor::setup_and_popup_contextual_menu): New declaration.
+	* src/uicommon/nmv-source-editor.cc
+	(SourceView::setup_and_popup_contextual_menu): New.  Move the core
+	of DBGPerspective::popup_source_view_contextual_menu here.
+	(SourceEditor::setup_and_popup_menu): New.  Just call the new
+	SourceView::setup_and_popup_contextual_menu above.
+
+2013-05-09  Dodji Seketeli <dodji@seketeli.org>
+
+	Style fix
+	* src/dbgengine/nmv-gdb-engine.cc
+	(GDBEngine::Priv::on_gdb_stderr_has_data_signal): Re-indent.
+
+2013-05-13  Kjartan Maraas <kmaraas@gnome.org>
+
+	Updated Norwegian bokmål translation
+
+2013-04-14  Dodji Seketeli <dodji@seketeli.org>
+
+	687609 - nemiver should install a highcontrast app icon
+	* configure.ac (data/icons/hicolor/*, data/icons/HighContrast/):
+	Generate Makefiles from the Makefile.am of this two new sub-directories.
+	(data/icons/{16x16,22x22,24x24,32x32,48x48,scalable): Do not
+	generate Makefiles for these directories as they got moved under
+	data/icons/hicolor.
+	* data/icons/HighContrast/16x16/Makefile.am: New file.
+	* data/icons/HighContrast/16x16/nemiver.png: Likewise.
+	* data/icons/HighContrast/22x22/Makefile.am: Likewise.
+	* data/icons/HighContrast/22x22/nemiver.png: Likewise.
+	* data/icons/HighContrast/24x24/Makefile.am: Likewise.
+	* data/icons/HighContrast/24x24/nemiver.png: Likewise.
+	* data/icons/HighContrast/256x256/Makefile.am: Likewise.
+	* data/icons/HighContrast/256x256/nemiver.png: Likewise.
+	* data/icons/HighContrast/32x32/Makefile.am: Likewise.
+	* data/icons/HighContrast/32x32/nemiver.png: Likewise.
+	* data/icons/HighContrast/48x48/Makefile.am: Likewise.
+	* data/icons/HighContrast/48x48/nemiver.png: Likewise.
+	* data/icons/HighContrast/scalable/Makefile.am: Likewise.
+	* data/icons/HighContrast/Makefile.am: Likewise.
+	* data/icons/scalable/nemiver.svg Moved to
+	data/icons/HighContrast/scalable/nemiver.svg and
+	data/icons/hicolor/scalable/nemiver.svg.
+	* data/icons/16x16/Makefile.am: Moved to data/icons/hicolor/16x16/Makefile.am
+	* data/icons/16x16/nemiver.png: Moved to data/icons/hicolor/16x16/nemiver.png
+	* data/icons/22x22/Makefile.am: Moved to data/icons/hicolor/22x22/Makefile.am
+	* data/icons/22x22/nemiver.png: Moved to data/icons/hicolor/22x22/nemiver.png
+	* data/icons/24x24/Makefile.am: Moved to data/icons/hicolor/24x24/Makefile.am
+	* data/icons/24x24/nemiver.png: Moved to data/icons/hicolor/24x24/nemiver.png
+	* data/icons/32x32/Makefile.am: Moved to data/icons/hicolor/32x32/Makefile.am
+	* data/icons/32x32/nemiver.png: Moved to data/icons/hicolor/32x32/nemiver.png
+	* data/icons/48x48/Makefile.am: Moved to data/icons/hicolor/48x48/Makefile.am
+	* data/icons/48x48/nemiver.png: Moved to
+	data/icons/hicolor/48x48/nemiver.png
+	* data/icons/Makefile.am: Update to add hicolor and HighContrast
+	sub-directories.  Update the cache for two themes now: hicolor and
+	HighContrast.
+
+2013-04-14  Dodji Seketeli <dodji@seketeli.org>
+
+	Allow disassembling from address 0
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::disassemble_around_address_and_do): Allow
+	Debugging at address 0 as some targets let meaningful stuff be
+	placed there.  This is in response to a message started on the
+	mailing list by an unnamed person which email address is
+	Inductiveload <inductiveload@gmail.com>:
+	https://mail.gnome.org/archives/nemiver-list/2013-March/msg00000.html.
+
+2013-04-14  Dodji Seketeli <dodji@seketeli.org>
+
+	697992 - fail to restart a program wrapped in libtool shell script
+	* src/dbgengine/nmv-gdb-engine.cc (GDBEngine::load_program):  When
+	asked about a forced re-load, always launch a new GDB.  This
+	allows to re-ask libtool to launch the gdb for us, on libtool
+	wrapper scripts.  Add logs for this case.
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::Priv::last_prog_path_requested): New data member.
+	(DBGPerspective::restart_local_inferior): Re-launch a debugger
+	engine upon re-starts of a libtool wrapper.  Make sure to ask the
+	restart on the libtool wrapper, not on the its underlying binary
+	that might have been wiped out by a re-build.
+	(DBGPerspective::execute_program): Likewise, make sure to ask the
+	restart on the libtool wrapper, not on the its underlying binary
+	that might have been wiped out by a re-build.  Also, set the new
+	DBGPerspective::Priv::last_prog_path_requested data member to the
+	path to of the program which the user wants to debug.
+
+2013-04-14  Dodji Seketeli <dodji@seketeli.org>
+
+	Various logging and style tweaking
+	* src/common/nmv-proc-utils.cc (launch_program): Use LOD_DD to log
+	to the default domain.
+	* src/dbgengine/nmv-gdb-engine.cc (GDBEngine::launch_gdb): Add
+	more logs.
+	(GDBEngine::load_program): Remove trailing white space and add
+	mode logs.
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(DBGPerspective::execute_program): Simplify logic.  What was I
+	thinking ...
+
+2013-04-06  Wylmer Wang <wantinghard@gmail.com>
+
+	update Simplified Chinese (zh_CN) translation
+
+2013-04-03  Yuri Myasoedov <omerta13@yandex.ru>
+
+	Updated Russian translation
+
+2013-03-25  OKANO Takayoshi <kano@na.rim.or.jp>
+
+	l10n: Update Japanese translation
+
+2013-03-22  Seong-ho Cho <darkcircle.0426@gmail.com>
+
+	Updated Korean translation
+
+2013-03-19  Victor Ibragimov <victor.ibragimov@gmail.com>
+
+	[l10n] Added Tadjik translation
+
+2013-03-16  Carles Ferrando <carles.ferrando@gmail.com>
+
+	[l10n] Updated Catalan (Valencian) translation
+
+2013-03-16  Joan Duran <jodufi@gmail.com>
+
+	[l10n] Updated Catalan translation
+
+2013-03-15  Duarte Loreto <happyguy_pt@hotmail.com>
+
+	Updated Portuguese translation and converted to New Spelling (Novo AO)
+
+2013-03-15  Balázs Úr <urbalazs@src.gnome.org>
+
+	Updated Hungarian translation
+
+2013-03-12  Joe Hansen <joedalton2@yahoo.dk>
+
+	Updated Danish translation
+
+2013-03-11  Andika Triwidada <andika@gmail.com>
+
+	Updated Indonesian translation
+
+2013-03-09  Dimitris Spingos <dmtrs32@gmail.com>
+
+	Updated Greek translation
+
+2013-03-05  Marek Černocký <marek@manet.cz>
+
+	Updated Czech translation
+
+2013-03-04 00:39:03 -0300  Enrico Nicoletto <liverig@gmail.com>
+
+	Updated Brazilian Portuguese translation
+
+2013-03-02  Aurimas Černius <aurisc4@gmail.com>
+
+	Updated Lithuanian translation
+
+2013-03-01  Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>
+
+	Updated Traditional Chinese translation(Hong Kong and Taiwan)
+
+2013-03-01  Мирослав Николић <miroslavnikolic@rocketmail.com>
+
+	Updated Serbian translation
+
+2013-02-28  Mario Blättermann <mario.blaettermann@gmail.com>
+
+	[l10n]Updated German translation
+
+2013-02-26  Fran Diéguez <fran.dieguez@mabishu.com>
+
+	Updated Galician translations
+
+2013-02-25  Alexandre Franke <alexandre.franke@gmail.com>
+
+	Update French translation
+
+2013-02-25  Matej Urbančič <mateju@svn.gnome.org>
+
+	Updated Slovenian translation
+
+2013-02-25  Daniel Mustieles <daniel.mustieles@gmail.com>
+
+	Updated Spanish translation
+
+2013-02-25  Gheyret Kenji <gheyret@gmail.com>
+
+	Updated Uyghur translation
+	Signed-off-by: Gheyret Kenji <gheyret@gmail.com>
+
+2013-02-24  Piotr Drąg <piotrdrag@gmail.com>
+
+	Updated Polish translation
+
+2013-02-24  Piotr Drąg <piotrdrag@gmail.com>
+
+	Remove markup from translatable string
+
+2013-02-24  Dodji Seketeli <dodji@seketeli.org>
+
+	680376 - Local variables in nested scopes don't get refreshed automatically
+	* data/schemas/gconf/nemiver-dbgperspective.schemas
+	(/apps/nemiver/dbgperspective/update-local-vars-at-each-stop): New
+	GConf key.
+	* data/schemas/gsettings/org.nemiver.gschema.xml
+	(update-local-vars-at-each-stop): New GSettings key.
+	* src/confmgr/nmv-conf-keys.h
+	(CONF_KEY_UPDATE_LOCAL_VARS_AT_EACH_STOP): Declare the variable
+	for the new conf key above.
+	* src/confmgr/nmv-gconf-keys-defs.cc
+	(CONF_KEY_UPDATE_LOCAL_VARS_AT_EACH_STOP): Define the key above
+	for the GConf backend.
+	* src/confmgr/nmv-gsettings-keys-defs.cc
+	(CONF_KEY_UPDATE_LOCAL_VARS_AT_EACH_STOP): Likewise for the the
+	GSettings backend.
+	* src/persp/dbgperspective/ui/preferencesdialog.ui: Add a new
+	check button in the debugger tab to let the user choose whether
+	or not to update the list of local variables at each stop in the
+	function.
+	* src/persp/dbgperspective/nmv-preferences-dialog.cc
+	(Priv::update_local_vars_check_button): New check button, to set
+	the new conf key above.
+	(Priv::{on_local_vars_list_updated_signal,update_local_var_list_keys}):
+	New functions.
+	(Priv::init): Initialize the new
+	Priv::update_local_vars_check_button with the check button we get
+	from glade.  Wire the signal_toggled signal.
+	(Priv::update_widget_from_source_dirs_key): Update the new
+	Priv::update_widget_from_source_dirs_key check button with the
+	value of the key CONF_KEY_UPDATE_LOCAL_VARS_AT_EACH_STOP.
+	* src/dbgengine/nmv-i-debugger.h (IDebugger::list_local_variables):
+	Add a new overload that takes a slot to be invoked whenever local
+	variables are listed.
+	* src/dbgengine/nmv-gdb-engine.h
+	(GDBEngine::list_local_variables): Re-declare the overload above
+	here.
+	* src/dbgengine/nmv-gdb-engine.cc
+	(GDBEngine::list_local_variables):  Define the above here.
+	Implement the former overload in terms of the new one.
+	* src/persp/dbgperspective/nmv-local-vars-inspector.cc
+	(Priv::{append_a_local_variable_and_update_all,
+	erase_variable_from_list, remove_a_local_variable,
+	add_new_local_vars_and_update_olders,
+	maybe_update_list_of_local_vars_and_then_update_older_ones,
+	is_variable_in_list}): New functions.
+	(Priv::on_local_vars_list_updated_signal): Removed.
+	(finish_handling_debugger_stopped_event): Use the new
+	IDebugger::list_local_variables overload that takes a signal slot
+	in argument.  Use the new function
+	maybe_update_list_of_local_vars_and_then_update_older_ones.
+	(LocalVarsInspector::show_local_variables_of_current_function):
+	Use the new overload of IDebugger::list_local_variables.
+	* src/persp/dbgperspective/nmv-dbg-perspective.cc
+	(Priv::current_thread_id): New member, initialized to zero.
+	(DBGPerspective::on_thread_list_thread_selected_signal): Do not
+	select the thread id if we are currently already on that same
+	thread id.  prevents Nemiver from calling
+	show_local_variables_of_current_function on the variable
+	inspector; calling that function would be redundant with the fact
+	that the variable inspector already queries the list of variables
+	when the debugger stops.  So the widget would have each local
+	variables twice.
+	(DBGPerspective::on_debugger_stopped_signal): Set
+	m_priv->current_thread_id here too, so that
+	DBGPerspective::on_thread_list_thread_selected_signal can have a
+	chance to know if it is being called on the same thread as the
+	previous thread or not.
+	* tests/locals-in-middle.cc: New program for testing.
+	* tests/Makefile: Build the new tests/locals-in-middle.cc program
+	for testing.
+
+2013-02-24  Dodji Seketeli <dodji@seketeli.org>
+
+	Use AM_CPPFLAGS instead of INCLUDE
+	* tests/Makefile.am: Use AM_CPPFLAGS instead of the deprecated
+	INCLUDE variable.  At least automake 1.13.1 complains for that.
+
+2013-02-24  Dodji Seketeli <dodji@seketeli.org>
+
+	Misc style cleanups
+	* src/persp/dbgperspective/nmv-preferences-dialog.cc (lots of
+	inline member functions): Make inline member functions start on
+	their own line, rather than following their return type.
+	(Priv::update_widget_from_source_dirs_key):  Mention 'conf keys"
+	rather than 'gconf key'.  GConf is just one of the two conf
+	backends we support now.
+	* src/persp/dbgperspective/nmv-variables-utils.cc
+	(unlink_a_variable_row): Fix comment.
+
+2013-02-20  Yuri Myasoedov <omerta13@yandex.ru>
+
+	Updated Russian translation
+
+2013-02-17  Marek Černocký <marek@manet.cz>
+
+	Updated Czech translation
+
+2013-02-14  Dodji Seketeli <dodji@seketeli.org>
+
+	Fix -Wunused-local-typedefs triggered by GCC 4.8
+	* src/dbgengine/nmv-gdb-engine.cc
+	(GDBEngine::append_breakpoint_to_cache): Remove unused local
+	typedef ConstBpIt.
+	* src/persp/dbgperspective/nmv-global-vars-inspector-dialog.cc
+	(GlobalVarsInspectorDialog::Priv::append_a_global_variable):
+	Likewise for unused local typedef TreeStoreRefPtr.
+
+2013-02-07  Fran Diéguez <fran.dieguez@mabishu.com>
+
+	Updated Galician translations
+
+2013-02-05  Anish A <aneesh.nl@gmail.com>
+
+	Updated Malayalam Localization - LINGUAS
+
+2013-02-04  Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>
+
+	Updated Traditional Chinese translation(Hong Kong and Taiwan)
+
+2013-02-03  Gheyret Kenji <gheyret@gmail.com>
+
+	Updated Uyghur translation
+	Signed-off-by: Gheyret Kenji <gheyret@gmail.com>
+
+2013-02-02  Anish A <aneesh.nl@gmail.com>
+
+	Updated Malayalam Localization
+
+2013-02-01  Christian Kirbach <Christian.Kirbach@googlemail.com>
+
+	Updated German translation
+
+2013-01-30  Aleksej Kabanov <ak099@mail.ru>
+
+	Updated Russian translation
+
+2013-01-26  Gheyret Kenji <gheyret@gmail.com>
+
+	Updated Uyghur translation
+	Signed-off-by: Gheyret Kenji <gheyret@gmail.com>
+
+2013-01-26  Gheyret Kenji <gheyret@gmail.com>
+
+	Updated Uyghur translation
+	Signed-off-by: Gheyret Kenji <gheyret@gmail.com>
+
+2013-01-23  Alexandre Franke <alexandre.franke@gmail.com>
+
+	Update French translation
+
+2013-01-21  Carles Ferrando <carles.ferrando@gmail.com>
+
+	[l10n] Updated Catalan (Valencian) translation
+
+2013-01-21  Gil Forcada <gforcada@gnome.org>
+
+	[l10n] Updated Catalan translation
+
+2013-01-20  Matej Urbančič <mateju@svn.gnome.org>
+
+	Updated Slovenian translation
+
+2013-01-19  Aurimas Černius <aurisc4@gmail.com>
+
+	Updated Lithuanian translation
+
+2013-01-19  Мирослав Николић <miroslavnikolic@rocketmail.com>
+
+	Updated Serbian translation
+
+2013-01-18 20:24:27 -0200  Rafael Ferreira <rafael.f.f1@gmail.com>
+
+	Updated Brazilian Portuguese Translation
+
+2013-01-16  Piotr Drąg <piotrdrag@gmail.com>
+
+	Updated Polish translation
+
+2013-01-15  Daniel Mustieles <daniel.mustieles@gmail.com>
+
+	Updated Spanish translation
+
+2013-01-15  Daniel Mustieles <daniel.mustieles@gmail.com>
+
+	Fixed syntax in .desktop file
+
+2013-01-14  Aurimas Černius <aurisc4@gmail.com>
+
+	Updated Lithuanian translation
+
+2013-01-14  Dodji Seketeli <dodji@seketeli.org>
+
+	Update announcement text
+	* Makefile.am (target cat-announcement): Update the announcement
+	text for better text filling and also to reflect that we ship
+	tarballs in xz format only.  No more bz2.
+
+2013-01-14  Dodji Seketeli <dodji@seketeli.org>
+
+	Bump version to 0.9.5
+	* configure.ac: Bump version to 0.9.5.
+
+2013-01-13  Dodji Seketeli <dodji@seketeli.org>
+
+	Automatic update of ChangeLog
+	* ChangeLog: Updated automatically with make update-changelog
+
 2013-01-13  Dodji Seketeli <dodji@seketeli.org>
 
 	Update NEWS file for 0.9.4
+	* NEWS: Update for 0.9.4
+
+2013-01-13  Fran Diéguez <fran.dieguez@mabishu.com>
+
+	Updated Galician translations
 
 2013-01-13  Dodji Seketeli <dodji@seketeli.org>
 
