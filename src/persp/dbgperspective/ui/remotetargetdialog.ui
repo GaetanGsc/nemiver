@@ -238,6 +238,16 @@
 		      <object class="GtkAlignment" id="consolecommandcontainer">
 			<property name="visible">True</property>
                         <property name="border_width">6</property>
+			<child>
+			  <object class="GtkEntry" id="">
+			    <property name="visible">True</property>
+			    <property name="can_focus">True</property>
+                          </object>
+                          <packing>
+                            <property name="x_options"></property>
+                            <property name="y_options"></property>
+			  </packing>
+			</child>
 		      </object>
 		    </child>
                   </object>
