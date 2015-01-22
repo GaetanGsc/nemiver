@@ -42,6 +42,7 @@ struct RemoteTargetDialog::Priv {
     mutable UString solib_prefix_path;
     mutable UString server_address;
     mutable UString serial_port_name;
+	mutable UString linecommand;
     enum RemoteTargetDialog::ConnectionType connection_type;
 
     Priv ();
@@ -72,15 +73,25 @@ struct RemoteTargetDialog::Priv {
         Gtk::Widget *serial_connection_container =
             get_widget_from_gtkbuilder<Gtk::Widget> (gtkbuilder,
                                                 "serialconnectioncontainer");
+		Gtk::Widget *line_command_container =
+			get_widget_from_gtkbuilder<Gtk::Widget> (gtkbuilder, "linecommandcontainer");
         if (radio->get_active ()) {
             connection_type = RemoteTargetDialog::TCP_CONNECTION_TYPE;
             tcp_connection_container->set_sensitive (true);
             serial_connection_container->set_sensitive (false);
-        } else {
+			line_command_container->set_sensitive (false);
+        } else if (radio->get_active ()) {
             connection_type = RemoteTargetDialog::SERIAL_CONNECTION_TYPE;
             tcp_connection_container->set_sensitive (false);
             serial_connection_container->set_sensitive (true);
-        }
+			line_command_container->set_sensitive(false);
+        } else {
+			connection_type = RemoteTargetDialog::LINE_COMMAND_TYPE;
+			tcp_connection_container->set_sensitive (false);
+			serial_connection_container->set_sensitive (false);
+			line_command_container->set_sensitive (true);
+		}
+
 
         NEMIVER_CATCH
     }

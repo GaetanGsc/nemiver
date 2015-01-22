@@ -36,7 +36,7 @@ public:
 
     enum ConnectionType {
         TCP_CONNECTION_TYPE,
-        SERIAL_CONNECTION_TYPE
+        SERIAL_CONNECTION_TYPE,LINE_COMMAND_TYPE
     };
 
     RemoteTargetDialog (const UString &a_root_path);
@@ -62,6 +62,8 @@ public:
 
     const UString& get_serial_port_name () const;
     void set_serial_port_name (const UString &a_serial);
+
+
 };//end RemoteTargetDialog
 
 NEMIVER_END_NAMESPACE (nemiver)

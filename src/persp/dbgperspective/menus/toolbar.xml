@@ -7,7 +7,6 @@
     <toolitem action="StepOutMenuItemAction" name="StepOutMenuItem"/>
     <toolitem action="RunMenuItemAction" name="RunToolItem"/>
     <toolitem action="StopMenuItemAction" name="StopToolItem"/>
-    <toolitem action="StopMenuItemAction" name="StopTppmItem"/>
   </toolbar>
  </ui>
 

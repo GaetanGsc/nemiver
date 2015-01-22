@@ -604,7 +604,7 @@ public:
                                    const UString &a_prog_path,
                                    const UString &a_solib_prefix);
 
-	void connect_to_remote_target (const UString &a_command_line,
+	void connect_to_remote_target (const UString &a_linecommand,
 								   const UString &a_prog_path,
                                    const UString &a_solib_prefix);
 
@@ -6382,7 +6382,7 @@ DBGPerspective::connect_to_remote_target ()
     // try to pre-fill the remote target dialog with the relevant info
     // if we have it.
     pre_fill_remote_target_dialog (dialog);
-    
+
     int result = dialog.run ();
 
     if (result != Gtk::RESPONSE_OK)
@@ -6401,7 +6401,8 @@ DBGPerspective::connect_to_remote_target ()
                == RemoteTargetDialog::SERIAL_CONNECTION_TYPE) {
         connect_to_remote_target (dialog.get_serial_port_name (),
                                   path, solib_prefix);
-    }
+    } else if (dialog.get_connection_type () == RemoteTargetDialog::LINE_COMMAND_TYPE ) {
+		connect_to_remote_target (dialog.get_linecommand (),path, solib_prefix);
 }
 
 void
@@ -6476,7 +6477,7 @@ DBGPerspective::connect_to_remote_target (const UString &a_serial_line,
 }
 
 void
-DBGPerspective:: connect_to_remote_target (const UString &a_command_line,
+DBGPerspective:: connect_to_remote_target (const UString &a_linecommand,
                                           const UString &a_prog_path,
                                           const UString &a_solib_prefix)
 
@@ -6502,10 +6503,10 @@ DBGPerspective:: connect_to_remote_target (const UString &a_command_line,
     }
 	LOG_DD ("solib prefix path: '" <<  a_solib_prefix << "'");
     debugger ()->set_solib_prefix_path (a_solib_prefix);
-    debugger ()->attach_to_remote_target (a_command_line);
+    debugger ()->attach_to_remote_target_test (a_linecommand);
 
     std::ostringstream remote_target;
-    remote_target << a_command_line;
+    remote_target << a_linecommand;
     m_priv->remote_target = remote_target.str ();
     m_priv->solib_prefix = a_solib_prefix;
     m_priv->prog_path = a_prog_path;
@@ -6531,7 +6532,7 @@ DBGPerspective::reconnect_to_remote_target (const UString &a_remote_target,
         // Try to connect via the serial line
         connect_to_remote_target (a_remote_target,
                                   a_prog_path,
-                                  a_solib_prefix);    
+                                  a_solib_prefix);
 }
 
 bool

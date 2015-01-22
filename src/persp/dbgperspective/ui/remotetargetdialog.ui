@@ -235,11 +235,11 @@
                       </packing>
                     </child>
 		    <child>
-		      <object class="GtkAlignment" id="consolecommandcontainer">
+		      <object class="GtkAlignment" id="linecommandcontainer">
 			<property name="visible">True</property>
                         <property name="border_width">6</property>
 			<child>
-			  <object class="GtkEntry" id="">
+			  <object class="GtkEntry" id="linecommand">
 			    <property name="visible">True</property>
 			    <property name="can_focus">True</property>
                           </object>

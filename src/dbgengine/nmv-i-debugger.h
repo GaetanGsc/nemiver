@@ -1378,7 +1378,7 @@ public:
 
     virtual bool attach_to_remote_target (const UString &a_serial_line) = 0;
 
-	virtual bool attach_to_remote_target (const UString &a_command_line) = 0;
+	virtual bool attach_to_remote_target_test (const UString &a_linecommand);
 
     virtual void detach_from_target (const UString &a_cookie="") = 0;
 
