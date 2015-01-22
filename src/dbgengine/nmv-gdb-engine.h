@@ -309,6 +309,8 @@ public:
 
     bool attach_to_remote_target (const UString &a_serial_line);
 
+	bool attach_to_remote_target (const UString &a_command_line);
+
     void detach_from_target (const UString &a_cookie);
 
     void disconnect_from_remote_target (const UString &a_cookie);

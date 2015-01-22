@@ -604,6 +604,11 @@ public:
                                    const UString &a_prog_path,
                                    const UString &a_solib_prefix);
 
+	void connect_to_remote_target (const UString &a_command_line,
+								   const UString &a_prog_path,
+                                   const UString &a_solib_prefix);
+
+
     void reconnect_to_remote_target (const UString &a_remote_target,
                                      const UString &a_prog_path,
                                      const UString &a_solib_prefix);
@@ -6469,6 +6474,43 @@ DBGPerspective::connect_to_remote_target (const UString &a_serial_line,
     m_priv->solib_prefix = a_solib_prefix;
     m_priv->prog_path = a_prog_path;
 }
+
+void
+DBGPerspective:: connect_to_remote_target (const UString &a_command_line,
+                                          const UString &a_prog_path,
+                                          const UString &a_solib_prefix)
+
+{
+    LOG_FUNCTION_SCOPE_NORMAL_DD
+    THROW_IF_FAIL (debugger ());
+
+    save_current_session ();
+
+    if (m_priv->prog_cwd.empty ())
+        m_priv->prog_cwd = Glib::filename_to_utf8 (Glib::get_current_dir ());
+
+    LOG_DD ("executable path: '" <<  a_prog_path << "'");
+
+    vector<UString> args;
+    if (debugger ()->load_program (a_prog_path , args,
+                                   m_priv->prog_cwd) == false) {
+        UString message;
+        message.printf (_("Could not load program: %s"),
+                        a_prog_path.c_str ());
+        display_error (message);
+        return;
+    }
+	LOG_DD ("solib prefix path: '" <<  a_solib_prefix << "'");
+    debugger ()->set_solib_prefix_path (a_solib_prefix);
+    debugger ()->attach_to_remote_target (a_command_line);
+
+    std::ostringstream remote_target;
+    remote_target << a_command_line;
+    m_priv->remote_target = remote_target.str ();
+    m_priv->solib_prefix = a_solib_prefix;
+    m_priv->prog_path = a_prog_path;
+}
+
 
 void
 DBGPerspective::reconnect_to_remote_target (const UString &a_remote_target,

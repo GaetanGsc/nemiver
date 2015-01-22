@@ -3444,8 +3444,8 @@ bool
 GDBEngine::attach_to_remote_target (const UString &a_host,
 				    unsigned a_port)
 {
-	queue_command (Command ("-interpreter-exec console \"armtp  10.48.254.100:b2020stxh416:a9_0,active_cores=a9_0,no_convertor_abort=1,lmi_contig=1,boardrev=5,stmc_core_param_stop_on_exception=0,stmc_core_param_stop_on_svc=1,stmc_core_param_a9ss_l2cache=0xfffe2000,stmc_core_param_purge_invalidate_pl310=1\""));
-    return true;
+	queue_command (Command ("-target-select remote " + a_host +
+                            ":" + UString::from_int (a_port)));
 }
 
 bool
@@ -3454,6 +3454,14 @@ GDBEngine::attach_to_remote_target (const UString &a_serial_line)
     queue_command (Command ("-target-select remote " + a_serial_line));
     return true;
 }
+
+bool
+GDBEngine::attach_to_remote_target (const UString &a_command_line)
+{
+	queue_command (Command ("-target-select remote" + a_command_line));
+    return true;
+}
+
 
 void
 GDBEngine::detach_from_target (const UString &a_cookie)
