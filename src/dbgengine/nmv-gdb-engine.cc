@@ -3458,8 +3458,8 @@ GDBEngine::attach_to_remote_target (const UString &a_serial_line)
 bool
 GDBEngine::attach_to_remote_target_test (const UString &a_linecommand)
 {
-	const UString fixed_linecommand=("10.48.254.100:b2020stxh416:a9_0,active_cores=a9_0,no_convertor_abort=1,lmi_contig=1,boardrev=5,stmc_core_param_stop_on_exception=0,stmc_core_param_stop_on_svc=1,stmc_core_param_a9ss_l2cache=0xfffe2000,stmc_core_param_purge_invalidate_pl310=1");
-	queue_command (Command ("-interpreter-exec " + fixed_linecommand));
+	const UString fixed_linecommand=("armtp 10.48.254.100:b2020stxh416:a9_0,active_cores=a9_0,no_convertor_abort=1,lmi_contig=1,boardrev=5,stmc_core_param_stop_on_exception=0,stmc_core_param_stop_on_svc=1,stmc_core_param_a9ss_l2cache=0xfffe2000,stmc_core_param_purge_invalidate_pl310=1");
+	queue_command (Command ("-interpreter-exec console \"" + fixed_linecommand +"\""));
     return true;
 
 	queue_command (Command ("-interpreter-exec console \"armtp  10.48.254.100:b2020stxh416:a9_0,active_cores=a9_0,no_convertor_abort=1,lmi_contig=1,boardrev=5,stmc_core_param_stop_on_exception=0,stmc_core_param_stop_on_svc=1,stmc_core_param_a9ss_l2cache=0xfffe2000,stmc_core_param_purge_invalidate_pl310=1\""));

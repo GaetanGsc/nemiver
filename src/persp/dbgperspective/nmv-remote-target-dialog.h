@@ -36,7 +36,8 @@ public:
 
     enum ConnectionType {
         TCP_CONNECTION_TYPE,
-        SERIAL_CONNECTION_TYPE,LINE_COMMAND_TYPE
+        SERIAL_CONNECTION_TYPE,
+		LINE_COMMAND_TYPE
     };
 
     RemoteTargetDialog (const UString &a_root_path);
@@ -62,6 +63,9 @@ public:
 
     const UString& get_serial_port_name () const;
     void set_serial_port_name (const UString &a_serial);
+
+	const UString& get_linecommand () const;
+	void set_linecommand (const UString &a_linecommand);
 
 
 };//end RemoteTargetDialog

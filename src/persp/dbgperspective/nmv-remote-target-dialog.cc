@@ -173,9 +173,8 @@ struct RemoteTargetDialog::Priv {
         set_solib_prefix_path (common::env::get_system_lib_dir ());
         chooser->show ();
 
-        Gtk::Entry* entry =
-                get_widget_from_gtkbuilder<Gtk::Entry>
-            (gtkbuilder, "addressentry");
+        Gtk::Entry* 
+			entry = get_widget_from_gtkbuilder<Gtk::Entry> (gtkbuilder, "addressentry");
         entry->signal_changed ().connect
                 (sigc::mem_fun (*this,
                                 &Priv::on_address_selection_changed_signal));
@@ -185,6 +184,10 @@ struct RemoteTargetDialog::Priv {
         entry->signal_changed ().connect
                 (sigc::mem_fun (*this,
                                 &Priv::on_address_selection_changed_signal));
+
+		entry = get_widget_from_gtkbuilder<Gtk::Entry> (gtkbuilder, "linecommand");
+
+		entry->signal_changed ().connect (sigc::mem_fun (*this,&Priv::on_address_selection_changed_signal));
 
         chooser = get_widget_from_gtkbuilder<Gtk::FileChooserButton>
             (gtkbuilder, "serialchooserbutton");
@@ -215,6 +218,11 @@ struct RemoteTargetDialog::Priv {
                 (gtkbuilder, "serialchooserbutton");
             if (chooser->get_filename ().empty ())
                 return false;
+			} else if (connection_type == RemoteTargetDialog::LINE_COMMAND_TYPE) {
+				entry = get_widget_from_gtkbuilder<Gtk::Entry>
+					(gtkbuilder, "portentry");
+				if (entry->get_text ().empty())
+					return false;
         }
         return true;
     }
@@ -337,6 +345,23 @@ struct RemoteTargetDialog::Priv {
         chooser->select_filename (a_name);
     }
 
+	const UString&
+	get_linecommand () const
+	{
+		Gtk::Entry *entry = get_widget_from_gtkbuilder<Gtk::Entry> (gtkbuilder,"linecommand");
+		linecommand = entry->get_text ();
+		return linecommand;
+	}
+
+	void
+	set_linecommand (const UString &a_linecommand)
+	{
+		Gtk::Entry *entry = get_widget_from_gtkbuilder<Gtk::Entry> (gtkbuilder,
+                                                               "linecommand");
+        entry->set_text (a_linecommand);
+
+	}
+
 };//end RemoteTargetDialog::Priv
 
 RemoteTargetDialog::RemoteTargetDialog (const UString &a_root_path) :
@@ -427,6 +452,14 @@ RemoteTargetDialog::get_server_port () const
     THROW_IF_FAIL (m_priv);
     return m_priv->get_server_port ();
 }
+
+const UString&
+RemoteTargetDialog::get_linecommand () const
+{
+    THROW_IF_FAIL (m_priv);
+    return m_priv->get_linecommand ();
+}
+
 
 void
 RemoteTargetDialog::set_server_port (unsigned a_port)

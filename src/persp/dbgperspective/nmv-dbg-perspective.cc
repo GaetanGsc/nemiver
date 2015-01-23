@@ -604,7 +604,7 @@ public:
                                    const UString &a_prog_path,
                                    const UString &a_solib_prefix);
 
-	void connect_to_remote_target (const UString &a_linecommand,
+	void connect_to_remote_target_test (const UString &a_linecommand,
 								   const UString &a_prog_path,
                                    const UString &a_solib_prefix);
 
@@ -6402,7 +6402,8 @@ DBGPerspective::connect_to_remote_target ()
         connect_to_remote_target (dialog.get_serial_port_name (),
                                   path, solib_prefix);
     } else if (dialog.get_connection_type () == RemoteTargetDialog::LINE_COMMAND_TYPE ) {
-		connect_to_remote_target (dialog.get_linecommand (),path, solib_prefix);
+		connect_to_remote_target_test (dialog.get_linecommand (),path, solib_prefix);
+	}
 }
 
 void
@@ -6477,7 +6478,7 @@ DBGPerspective::connect_to_remote_target (const UString &a_serial_line,
 }
 
 void
-DBGPerspective:: connect_to_remote_target (const UString &a_linecommand,
+DBGPerspective:: connect_to_remote_target_test (const UString &a_linecommand,
                                           const UString &a_prog_path,
                                           const UString &a_solib_prefix)
 

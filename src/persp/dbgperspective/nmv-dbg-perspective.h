@@ -130,7 +130,7 @@ public:
                                            const UString &a_prog_path,
                                            const UString &a_solib_prefix) = 0;
 
-	virtual void connect_to_remote_target (const UString &a_linecommand,
+	virtual void connect_to_remote_target_test (const UString &a_linecommand,
 										   const UString &a_prog_path,
 										   const UString &a_solib_prefix) =0;
 
