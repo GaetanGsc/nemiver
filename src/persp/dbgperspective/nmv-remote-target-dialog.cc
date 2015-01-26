@@ -220,7 +220,7 @@ struct RemoteTargetDialog::Priv {
                 return false;
 			} else if (connection_type == RemoteTargetDialog::LINE_COMMAND_TYPE) {
 				entry = get_widget_from_gtkbuilder<Gtk::Entry>
-					(gtkbuilder, "portentry");
+					(gtkbuilder, "linecommand");
 				if (entry->get_text ().empty())
 					return false;
         }

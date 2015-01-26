@@ -128,6 +128,7 @@ parse_host_and_port (const std::string &a_str,
     return true;
 }
 
+
 size_t
 hexa_to_int (const string &a_hexa_str)
 {

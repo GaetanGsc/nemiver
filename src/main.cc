@@ -636,7 +636,7 @@ process_gui_options (int& a_argc, char** a_argv)
             std::string host;
             unsigned port = 0;
             std::string solib_prefix;
-
+			
             if (gv_solib_prefix)
                 solib_prefix = gv_solib_prefix;
 
@@ -647,14 +647,16 @@ process_gui_options (int& a_argc, char** a_argv)
                 debug_persp->connect_to_remote_target (host, port,
                                                        prog_path,
                                                        solib_prefix);
-            } else {
+			}
+			else {
                 // We think gv_remote contains a serial line address.
                 // Let's try to connect via the serial line then.
                 debug_persp->connect_to_remote_target (gv_remote,
                                                        prog_path,
                                                        solib_prefix);
-            }
-	} else if (!prog_path.empty ()) {
+			}
+	}
+	 else if (!prog_path.empty ()) {
             // The user wants to debug a local program
             debug_persp->uses_launch_terminal (gv_use_launch_terminal);
             debug_persp->execute_program (prog_path,
