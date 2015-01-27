@@ -3464,7 +3464,7 @@ GDBEngine::attach_to_remote_target_test (const UString &a_linecommand)
 	queue_command (Command ("-interpreter-exec console \"" + a_linecommand +"\""));
 	queue_command (Command ("-file-exec-and-symbols main.out"));
 	queue_command (Command ("-target-download"));
-	queue_command (Command ("-exec-continue"));
+	
     return true;
 }
 
