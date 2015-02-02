@@ -3458,13 +3458,28 @@ GDBEngine::attach_to_remote_target (const UString &a_serial_line)
 bool
 GDBEngine::attach_to_remote_target_test (const UString &a_linecommand)
 {
-#if 0 
-	queue_command (Command ("-interpreter-exec console \"armtp  10.48.254.100:b2020stxh416:a9_0,active_cores=a9_0,no_convertor_abort=1,lmi_contig=1,boardrev=5,stmc_core_param_stop_on_exception=0,stmc_core_param_stop_on_svc=1,stmc_core_param_a9ss_l2cache=0xfffe2000,stmc_core_param_purge_invalidate_pl310=1\""));
+#if 0
+	queue_command (Command ("-interpreter-exec console \"armtp  10.48.254.100:b2020stxh416:a9_0,active_cores=a9_0,no_convertor_abort=1,lmi_contig=1,boardrev=5,stmc_core_param_stop_on_exception=0,stmc_core_param_stop_on_svc=1,stmc_core_param_a9ss_l2cache=0xfffe2000,stmc_core_param_purge_invalidate_pl310=1\""));/home/gascheg/Desktop/command_connection.txt
+
+
+        ifstream fichier("/home/gascheg/Desktop/command_connection.txt", ios::in);  // on ouvre en lecture
+
+        if(fichier)  // si l'ouverture a fonctionné
+        {
+                string contenu;  // déclaration d'une chaîne qui contiendra la ligne lue
+                getline(fichier, contenu);  // on met dans "contenu" la ligne
+                cout << contenu;  // on affiche la ligne
+
+                fichier.close();
+        }<F5>
+        else
+                cerr << "Impossible d'ouvrir le fichier !" << endl;
 #endif
+	queue_command (Command ("set silent on"));
 	queue_command (Command ("-interpreter-exec console \"" + a_linecommand +"\""));
-	queue_command (Command ("-file-exec-and-symbols main.out"));
+/*  queue_command (Command ("-file-exec-and-symbols /local/gascheg/myos21/os21/example/main.out"));*/
 	queue_command (Command ("-target-download"));
-	
+
     return true;
 }
 
