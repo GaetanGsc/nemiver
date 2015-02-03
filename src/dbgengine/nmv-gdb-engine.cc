@@ -501,8 +501,11 @@ public:
         Output output (a_buf);
 
         UString::size_type from (0), to (0), end (a_buf.size ());
+		LOG_DD ("trace5");
         gdbmi_parser.push_input (a_buf);
+		LOG_DD ("trace6");
         for (; from < end;) {
+			LOG_DD ("trace8");
             if (!gdbmi_parser.parse_output_record (from, to, output)) {
                 LOG_ERROR ("output record parsing failed: "
                         << a_buf.substr (from, end - from)
@@ -513,9 +516,10 @@ public:
                 gdbmi_parser.skip_output_record (from, to);
                 output.parsing_succeeded (false);
             } else {
-                output.parsing_succeeded (true);
-            }
-
+			LOG_DD ("Trace 1");
+				output.parsing_succeeded (true);
+			}
+			LOG_DD ("Trace 2");
 
             // Check if the output contains the result to a command issued by
             // the user. If yes, build the CommandAndResult, update the
@@ -553,12 +557,17 @@ public:
                     && !queued_commands.empty ()) {
                     issue_command (*queued_commands.begin ());
                     queued_commands.erase (queued_commands.begin ());
+					LOG_DD ("command erase");
                 }
-            }
+			LOG_DD ("trace 3");
+			}
+			LOG_DD ("trace7");
         }
         gdbmi_parser.pop_input ();
-    }
+		LOG_DD ("trace4");
 
+    }
+	
     Priv (DynamicModule *a_dynmod) :
         dynmod (a_dynmod), cwd ("."),
         gdb_pid (0), target_pid (0),
@@ -606,7 +615,6 @@ public:
         frames_listed_signal.connect (sigc::mem_fun
                (*this, &Priv::on_frames_listed_signal));
     }
-
     void free_resources ()
     {
         if (gdb_pid) {
@@ -3475,10 +3483,12 @@ GDBEngine::attach_to_remote_target_test (const UString &a_linecommand)
         else
                 cerr << "Impossible d'ouvrir le fichier !" << endl;
 #endif
-	queue_command (Command ("set silent on"));
+	queue_command (Command ("-interpreter-exec console \"set silent on\""));
 	queue_command (Command ("-interpreter-exec console \"" + a_linecommand +"\""));
 /*  queue_command (Command ("-file-exec-and-symbols /local/gascheg/myos21/os21/example/main.out"));*/
-	queue_command (Command ("-target-download"));
+	queue_command (Command ("-interpreter-exec console \"load\"")); 
+	queue_command (Command ("-interpreter-exec console \"set silent off\""));
+/*	queue_command (Command ("-target-download"));*/
 
     return true;
 }

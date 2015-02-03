@@ -585,7 +585,6 @@ struct GDBMIParser::Priv {
     }
 };//end class GDBMIParser;
 
-
 GDBMIParser::GDBMIParser (Mode a_mode)
 {
     m_priv.reset (new Priv (a_mode));
@@ -1618,16 +1617,17 @@ GDBMIParser::parse_output_record (UString::size_type a_from,
                                   Output &a_output)
 {
     LOG_FUNCTION_SCOPE_NORMAL_D (GDBMI_PARSING_DOMAIN);
-
+	LOG_DD ("trace10");
     UString::size_type cur = a_from;
 
     if (m_priv->index_passed_end (cur)) {
         LOG_PARSING_ERROR (cur);
+		LOG_DD ("trace11");
         return false;
     }
 
     Output output;
-
+	int y = 0;
     while (RAW_CHAR_AT (cur) == '*'
            || RAW_CHAR_AT (cur) == '~'
            || RAW_CHAR_AT (cur) == '@'
@@ -1640,11 +1640,20 @@ GDBMIParser::parse_output_record (UString::size_type a_from,
             return false;
         }
         output.has_out_of_band_record (true);
+		LOG_DD ("trace12");
+		y++;
+		if (y>=100) {
+	LOG_DD ("force out after 100");
+		
+			return false;
+		}
         output.out_of_band_records ().push_back (oo_record);
-    }
+
+	}
 
     if (m_priv->index_passed_end (cur)) {
         LOG_PARSING_ERROR (cur);
+		LOG_DD ("trace13");
         return false;
     }
 
@@ -1665,6 +1674,7 @@ GDBMIParser::parse_output_record (UString::size_type a_from,
 
     if (!RAW_INPUT.compare (cur, 5, "(gdb)")) {
         cur += 5;
+		LOG_DD ("trace14");
     }
 
     if (cur == a_from) {
@@ -1837,9 +1847,13 @@ end:
 
     while (!m_priv->index_passed_end (cur)
            && isspace (RAW_CHAR_AT (cur))) {++cur;}
-    a_to = cur;
+	    a_to = cur;
     a_record = record;
-    return true;
+    if (a_from == cur) {
+		LOG_DD("detect a_to == a_from");
+		return false;
+	}
+	return true;
 }
 
 bool
@@ -1860,7 +1874,6 @@ GDBMIParser::parse_result_record (UString::size_type a_from,
     if (!RAW_INPUT.compare (cur, strlen (PREFIX_DONE), PREFIX_DONE)) {
         cur += 5;
         result_record.kind (Output::ResultRecord::DONE);
-
 
         if (!m_priv->index_passed_end (cur) && RAW_CHAR_AT (cur) == ',') {
 
@@ -2030,7 +2043,7 @@ fetch_gdbmi_result:
                     result_record.asm_instruction_list (asm_instrs);
                 }
             } else if (!RAW_INPUT.compare (cur,
-                                           strlen (PREFIX_NAME),
+                                           strlen (PREFIX_NAME),  
                                            PREFIX_NAME)) {
                 IDebugger::VariableSafePtr var;
                 if (!parse_variable (cur, cur, var)) {
@@ -4776,5 +4789,4 @@ GDBMIParser::parse_overloads_choice_prompt
 //</Parser methods>
 //******************************
 NEMIVER_END_NAMESPACE (nemiver)
-
 
