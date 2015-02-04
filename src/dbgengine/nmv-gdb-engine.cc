@@ -3469,26 +3469,38 @@ GDBEngine::attach_to_remote_target_test (const UString &a_linecommand)
 #if 0
 	queue_command (Command ("-interpreter-exec console \"armtp  10.48.254.100:b2020stxh416:a9_0,active_cores=a9_0,no_convertor_abort=1,lmi_contig=1,boardrev=5,stmc_core_param_stop_on_exception=0,stmc_core_param_stop_on_svc=1,stmc_core_param_a9ss_l2cache=0xfffe2000,stmc_core_param_purge_invalidate_pl310=1\""));/home/gascheg/Desktop/command_connection.txt
 
-
-        ifstream fichier("/home/gascheg/Desktop/command_connection.txt", ios::in);  // on ouvre en lecture
-
-        if(fichier)  // si l'ouverture a fonctionné
+SOLUTION 1
+std::ifstream fichier("command_connection.txt", ios::in);  // on ouvre en lecture
+		if(fichier)  // si l'ouverture a fonctionné
         {
-                string contenu;  // déclaration d'une chaîne qui contiendra la ligne lue
-                getline(fichier, contenu);  // on met dans "contenu" la ligne
-                cout << contenu;  // on affiche la ligne
+			string chaine1, chaine2;
+            fichier >> chaine1 >> chaine2;
 
-                fichier.close();
-        }<F5>
-        else
-                cerr << "Impossible d'ouvrir le fichier !" << endl;
+			std::getline(fichier, a_linecommand);  // on met dans "contenu" la ligne
+			std::fichier.close();
+        }
+
+SOLUTION 2 // error mauvais placement
+std::ifstream fichier("/local/gascheg/myos21/os21/example/cmd.txt", ios::in);  // on ouvre en lecture
+
+		if ( fichier )
+		{
+			std::stringstream buffer;
+			buffer << fichier.rdbuf();
+			fichier.close();
+
+
+
 #endif
-	queue_command (Command ("-interpreter-exec console \"set silent on\""));
+    queue_command (Command ("-interpreter-exec console \"set silent on\""));
 	queue_command (Command ("-interpreter-exec console \"" + a_linecommand +"\""));
 /*  queue_command (Command ("-file-exec-and-symbols /local/gascheg/myos21/os21/example/main.out"));*/
-	queue_command (Command ("-interpreter-exec console \"load\"")); 
+	queue_command (Command ("-interpreter-exec console \"load\""));
 	queue_command (Command ("-interpreter-exec console \"set silent off\""));
 /*	queue_command (Command ("-target-download"));*/
+
+
+
 
     return true;
 }
