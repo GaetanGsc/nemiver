@@ -241,12 +241,9 @@
 			<child>
 			  <object class="GtkEntry" id="linecommand">
 			    <property name="visible">True</property>
-			    <property name="can_focus">True</property>
+				<property name="can_focus">True</property>
+				<property name="text" translatable="yes"></property>
                           </object>
-                          <packing>
-                            <property name="x_options"></property>
-                            <property name="y_options"></property>
-			  </packing>
 			</child>
 		      </object>
 		    </child>

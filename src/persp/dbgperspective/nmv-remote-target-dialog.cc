@@ -27,7 +27,10 @@
 #include "common/nmv-env.h"
 #include "nmv-remote-target-dialog.h"
 #include "nmv-ui-utils.h"
-
+#include <stdio.h>
+#include <string.h>
+#include <gtk/gtk.h>
+#include <stdlib.h>
 
 NEMIVER_BEGIN_NAMESPACE (nemiver)
 
@@ -87,9 +90,30 @@ struct RemoteTargetDialog::Priv {
 			line_command_container->set_sensitive(false);
         } else {
 			connection_type = RemoteTargetDialog::LINE_COMMAND_TYPE;
+
+			FILE *fichier = NULL;
+			char mycommand [248];
+			fichier = fopen("/local/gascheg/myos21/os21/example/cmd.txt","r");
+
+		if (fichier != NULL)
+			{
+				fgets(mycommand, 248 , fichier);
+			}
+			const char* pointeur = mycommand;
+
+			Gtk::Entry*
+			entry = get_widget_from_gtkbuilder<Gtk::Entry> (gtkbuilder, "linecommand");
+			Glib::ustring str;
+			str = entry->get_text();
+			linecommand= str.c_str();
+			entry->set_text(pointeur);
+
+			fclose (fichier);
+
 			tcp_connection_container->set_sensitive (false);
 			serial_connection_container->set_sensitive (false);
 			line_command_container->set_sensitive (true);
+
 		}
 
 
@@ -106,7 +130,7 @@ struct RemoteTargetDialog::Priv {
 
         if (!path.empty ())
             executable_path = path;
-        
+
         Gtk::Button *button =
             get_widget_from_gtkbuilder<Gtk::Button> (gtkbuilder, "okbutton");
 
@@ -124,7 +148,7 @@ struct RemoteTargetDialog::Priv {
 
         Gtk::Button *button =
             get_widget_from_gtkbuilder<Gtk::Button> (gtkbuilder, "okbutton");
-        if (can_enable_ok_button ()) {
+        if (can_enable_ok_button () ) {
             button->set_sensitive (true);
         } else {
             button->set_sensitive (false);
@@ -185,9 +209,13 @@ struct RemoteTargetDialog::Priv {
                 (sigc::mem_fun (*this,
                                 &Priv::on_address_selection_changed_signal));
 
-		entry = get_widget_from_gtkbuilder<Gtk::Entry> (gtkbuilder, "linecommand");
+		// linecommand
 
-		entry->signal_changed ().connect (sigc::mem_fun (*this,&Priv::on_address_selection_changed_signal));
+		entry = get_widget_from_gtkbuilder<Gtk::Entry> (gtkbuilder, "linecommand");
+		entry->signal_changed ().connect 
+				(sigc::mem_fun (*this,&Priv::on_address_selection_changed_signal));
+
+		//chooserbutton
 
         chooser = get_widget_from_gtkbuilder<Gtk::FileChooserButton>
             (gtkbuilder, "serialchooserbutton");
